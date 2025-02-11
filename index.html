@@ -121,7 +121,7 @@
             remainingDoor = [0, 1, 2].find(i => i !== chosenDoor && i !== revealedDoor);
 
             // Update UI
-            document.getElementById("message").innerText = `I reveal a goat behind door ${revealedDoor + 1} 🐐. Do you want to switch?`;
+            document.getElementById("message").innerText = `A goat is revealed behind door ${revealedDoor + 1} 🐐. Do you want to switch?`;
             document.getElementById(`door${revealedDoor}`).innerText = "🐐"; // Reveal goat
             document.getElementById(`door${revealedDoor}`).style.background = "#f44336"; // Red for losing door
             
