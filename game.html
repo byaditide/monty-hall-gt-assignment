@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monty Hall Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .doors {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .door {
+            font-size: 50px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 140px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .door:hover {
+            background: #0056b3;
+        }
+        .message {
+            font-size: 22px;
+            margin-top: 25px;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .button {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: green;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .button:hover {
+            background: darkgreen;
+        }
+        .play-again {
+            background: #28a745;
+        }
+        .play-again:hover {
+            background: #218838;
+        }
+        .sim-btn {
+            background: #007bff;
+        }
+        .sim-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Monty Hall Game</h1>
+    <p>Click a door to make your choice:</p>
+
+    <div class="container">
+        <div class="doors">
+            <div class="door" onclick="chooseDoor(0)" id="door0">🚪</div>
+            <div class="door" onclick="chooseDoor(1)" id="door1">🚪</div>
+            <div class="door" onclick="chooseDoor(2)" id="door2">🚪</div>
+        </div>
+
+        <p class="message" id="message"></p>
+        
+        <button class="button hidden" id="switchButton" onclick="switchDoor()">Switch</button>
+        <button class="button hidden" id="stayButton" onclick="revealPrize()">Stay</button>
+        <button class="button play-again hidden" id="playAgain" onclick="resetGame()">Play Again 🔄</button>
+        
+        <!-- Simulation Button -->
+         <br><br><br><br><br><br><br><br><br>
+        <a href="index.html" class="button sim-btn">📊 Simulation</a>
+    </div>
+
+    <script>
+        let doors = [0, 0, 1]; // 1 = Car 🚗, 0 = Goat 🐐
+        let chosenDoor = -1;
+        let revealedDoor = -1;
+        let remainingDoor = -1;
+
+        function shuffleDoors() {
+            doors.sort(() => Math.random() - 0.5); // Randomize door placement
+        }
+
+        function chooseDoor(index) {
+            chosenDoor = index;
+
+            // Find a door to reveal (must be a goat & not chosen)
+            let availableDoors = doors.map((v, i) => (v === 0 && i !== chosenDoor) ? i : -1).filter(i => i !== -1);
+            revealedDoor = availableDoors[Math.floor(Math.random() * availableDoors.length)];
+
+            // Find remaining door
+            remainingDoor = [0, 1, 2].find(i => i !== chosenDoor && i !== revealedDoor);
+
+            // Update UI
+            document.getElementById("message").innerText = `I reveal a goat behind door ${revealedDoor + 1} 🐐. Do you want to switch?`;
+            document.getElementById(`door${revealedDoor}`).innerText = "🐐"; // Reveal goat
+            document.getElementById(`door${revealedDoor}`).style.background = "#f44336"; // Red for losing door
+            
+            // Show switch/stay buttons
+            document.getElementById("switchButton").classList.remove("hidden");
+            document.getElementById("stayButton").classList.remove("hidden");
+
+            // Disable other doors
+            document.querySelectorAll(".door").forEach(door => door.onclick = null);
+        }
+
+        function switchDoor() {
+            chosenDoor = remainingDoor; // Player switches
+            revealPrize();
+        }
+
+        function revealPrize() {
+            // Reveal all doors (Fix: Ensure the third door shows the correct item)
+            for (let i = 0; i < 3; i++) {
+                if (doors[i] === 1) {
+                    document.getElementById(`door${i}`).innerText = "🚗"; // Show car
+                    document.getElementById(`door${i}`).style.background = "#4CAF50"; // Green for win
+                } else {
+                    document.getElementById(`door${i}`).innerText = "🐐"; // Show goat
+                    document.getElementById(`door${i}`).style.background = "#f44336"; // Red for losing
+                }
+            }
+
+            // Display win/loss message
+            if (doors[chosenDoor] === 1) {
+                document.getElementById("message").innerText = "🎉 Congratulations! You won the car 🚗!";
+            } else {
+                document.getElementById("message").innerText = "😢 You got a goat 🐐! Try again.";
+            }
+
+            // Hide switch/stay buttons, show play again button
+            document.getElementById("switchButton").classList.add("hidden");
+            document.getElementById("stayButton").classList.add("hidden");
+            document.getElementById("playAgain").classList.remove("hidden");
+        }
+
+        function resetGame() {
+            // Shuffle doors
+            shuffleDoors();
+            chosenDoor = -1;
+            revealedDoor = -1;
+            remainingDoor = -1;
+
+            // Reset UI
+            document.getElementById("message").innerText = "Click a door to make your choice:";
+            document.getElementById("switchButton").classList.add("hidden");
+            document.getElementById("stayButton").classList.add("hidden");
+            document.getElementById("playAgain").classList.add("hidden");
+
+            // Reset doors
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`door${i}`).innerText = "🚪";
+                document.getElementById(`door${i}`).style.background = "#007bff"; // Blue default
+                document.getElementById(`door${i}`).onclick = () => chooseDoor(i);
+            }
+        }
+
+        // Start with shuffled doors
+        shuffleDoors();
+    </script>
+
+</body>
+</html>
